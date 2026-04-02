@@ -1,6 +1,6 @@
 # AI Legal Operations Platform
 
-A backend platform for legal firms to manage cases, track deadlines, organize documents, and query legal data using AI.
+A platform for legal firms to manage cases, track deadlines, organize documents, and query legal data using AI.
 
 ## Overview
 
