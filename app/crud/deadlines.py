@@ -130,3 +130,44 @@ def get_overdue_deadlines(db: Session) -> List[Deadline]:
         )
         .all()
     )
+
+
+def filter_deadlines(
+    db: Session,
+    case_id: Optional[int] = None,
+    status: Optional[DeadlineStatusEnum] = None,
+    due_date: Optional[datetime] = None,
+    due_date_from: Optional[datetime] = None,
+    due_date_to: Optional[datetime] = None,
+    skip: int = 0,
+    limit: int = 100,
+) -> List[Deadline]:
+    """
+    Advanced search and filtering for deadlines.
+    
+    Parameters:
+    - case_id: Filter by case ID
+    - status: Filter by deadline status (pending, completed, missed)
+    - due_date: Filter deadlines on exact date
+    - due_date_from: Filter deadlines on or after this date
+    - due_date_to: Filter deadlines on or before this date
+    """
+    query = db.query(Deadline)
+    
+    if case_id is not None:
+        query = query.filter(Deadline.case_id == case_id)
+    
+    if status is not None:
+        query = query.filter(Deadline.status == status)
+    
+    if due_date is not None:
+        # Convert to date only for comparison
+        query = query.filter(Deadline.due_date.cast(db.func.date) == due_date.date())
+    
+    if due_date_from is not None:
+        query = query.filter(Deadline.due_date >= due_date_from)
+    
+    if due_date_to is not None:
+        query = query.filter(Deadline.due_date <= due_date_to)
+    
+    return query.offset(skip).limit(limit).all()

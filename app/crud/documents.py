@@ -96,3 +96,48 @@ def get_all_documents(
 ) -> List[Document]:
     """Get all documents with pagination"""
     return db.query(Document).offset(skip).limit(limit).all()
+
+
+def filter_documents(
+    db: Session,
+    case_id: Optional[int] = None,
+    filename: Optional[str] = None,
+    uploaded_by: Optional[int] = None,
+    uploaded_at: Optional[datetime] = None,
+    uploaded_at_from: Optional[datetime] = None,
+    uploaded_at_to: Optional[datetime] = None,
+    skip: int = 0,
+    limit: int = 100,
+) -> List[Document]:
+    """
+    Advanced search and filtering for documents.
+    
+    Parameters:
+    - case_id: Filter by case ID
+    - filename: Search in filename
+    - uploaded_by: Filter by uploader user ID
+    - uploaded_at: Filter documents uploaded on exact date
+    - uploaded_at_from: Filter documents uploaded on or after this date
+    - uploaded_at_to: Filter documents uploaded on or before this date
+    """
+    query = db.query(Document)
+    
+    if case_id is not None:
+        query = query.filter(Document.case_id == case_id)
+    
+    if filename is not None:
+        query = query.filter(Document.filename.ilike(f"%{filename}%"))
+    
+    if uploaded_by is not None:
+        query = query.filter(Document.uploaded_by == uploaded_by)
+    
+    if uploaded_at is not None:
+        query = query.filter(Document.uploaded_at.cast(db.func.date) == uploaded_at.date())
+    
+    if uploaded_at_from is not None:
+        query = query.filter(Document.uploaded_at >= uploaded_at_from)
+    
+    if uploaded_at_to is not None:
+        query = query.filter(Document.uploaded_at <= uploaded_at_to)
+    
+    return query.offset(skip).limit(limit).all()

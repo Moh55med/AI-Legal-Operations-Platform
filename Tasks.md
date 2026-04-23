@@ -22,47 +22,45 @@
 **Effort**: 0.5 days
 **Files**: app/db/models.py
 
-### Task 1.3: Create Case table
-**Description**: Implement Case table with id, title, status, created_at
+### Task 1.3: Create client table
+**Description**: Implement client table with id,first_name, last_name,email, phone,
 **Acceptance Criteria**:
 - Table created with correct schema
-- Status defaults to appropriate value
-- Created_at timestamp auto-generated
 **Dependencies**: Task 1.1
 **Effort**: 0.5 days
 **Files**: app/db/models.py
 
-### Task 1.4: Create Watcher table (join table)
+### Task 1.4: Create Case table
+**Description**: Implement Case table with id, title, status, created_at,client_id,case_reference_number
+**Acceptance Criteria**:
+- Table created with correct schema
+- Status defaults to appropriate value
+- Created_at timestamp auto-generated
+- case_reference_number auto-generated
+**Dependencies**: Task 1.1,task 1.3
+**Effort**: 0.5 days
+**Files**: app/db/models.py
+
+### Task 1.5: Create Watcher table (join table)
 **Description**: Implement Watcher table with id, user_id, case_id, access_type (assigned | viewer)
 **Acceptance Criteria**:
 - Foreign keys to User and Case tables
 - Access_type enum with 'assigned' and 'viewer'
 - Composite unique constraint on user_id + case_id
-**Dependencies**: Tasks 1.2, 1.3
+**Dependencies**: Tasks 1.2, 1.4
 **Effort**: 0.5 days
 **Files**: app/db/models.py
 
-### Task 1.5: Create Document table
+### Task 1.6: Create Document table
 **Description**: Implement Document table with id, case_id, filename, uploaded_by, tags, uploaded_at
 **Acceptance Criteria**:
 - Foreign keys to Case and User tables
 - Tags stored as JSON array
 - Uploaded_at timestamp auto-generated
-**Dependencies**: Tasks 1.2, 1.3
+**Dependencies**: Tasks 1.2, 1.4
 **Effort**: 0.5 days
 **Files**: app/db/models.py
 
-### Task 1.6: Implement Case CRUD endpoints
-**Description**: Build endpoints for Create, Read, Update, Close case operations
-**Acceptance Criteria**:
-- POST /cases creates new case
-- GET /cases lists all cases
-- GET /cases/{id} retrieves specific case
-- PUT /cases/{id} updates case
-- PUT /cases/{id}/close closes case
-**Dependencies**: Phase 1 complete
-**Effort**: 2 days
-**Files**: app/api/endpoints/cases.py, app/crud/cases.py
 
 ### Task 1.7: Create Deadline table
 **Description**: Implement Deadline table with id, case_id, due_date, description, status
@@ -70,7 +68,7 @@
 - Foreign key to Case table
 - Status enum with 'pending', 'missed', 'completed'
 - Due_date indexed for performance
-**Dependencies**: Task 1.3
+**Dependencies**: Task 1.4
 **Effort**: 0.5 days
 **Files**: app/db/models.py
 
@@ -105,7 +103,19 @@
 
 ## Phase 2: Core Features
 
-### Task 2.1: Implement Document management endpoints
+### Task 2.1: Implement Case CRUD endpoints
+**Description**: Build endpoints for Create, Read, Update, Close case operations
+**Acceptance Criteria**:
+- POST /cases creates new case
+- GET /cases lists all cases
+- GET /cases/{id} retrieves specific case
+- PUT /cases/{id} updates case
+- PUT /cases/{id}/close closes case
+**Dependencies**: Phase 1 complete
+**Effort**: 2 days
+**Files**: app/api/endpoints/cases.py, app/crud/cases.py
+
+### Task 2.2: Implement Document management endpoints
 **Description**: Build endpoints for uploading, viewing, and searching documents,files will be stored on the server's disk in a /uploads folder, the Document table stores the file path
 **Acceptance Criteria**:
 - POST /documents/upload uploads file to case
@@ -116,7 +126,7 @@
 **Effort**: 2 days
 **Files**: app/api/endpoints/documents.py, app/crud/documents.py
 
-### Task 2.2: Implement Deadline CRUD endpoints
+### Task 2.3: Implement Deadline CRUD endpoints
 **Description**: Build endpoints for create, update, delete deadlines linked to cases
 **Acceptance Criteria**:
 - POST /deadlines creates deadline for case
@@ -127,7 +137,7 @@
 **Effort**: 1.5 days
 **Files**: app/api/endpoints/deadlines.py, app/crud/deadlines.py
 
-### Task 2.3: Implement deadline alert background job
+### Task 2.4: Implement deadline alert background job
 **Description**: Add background job that checks due dates and triggers alerts
 **Acceptance Criteria**:
 - Job runs periodically (e.g., daily)
@@ -138,7 +148,23 @@
 **Effort**: 1.5 days
 **Files**: app/services/deadline_alerts.py, background job setup
 
-### Task 2.4: Implement AI insights query endpoint
+### Task 2.6: Add search and filtering to Case endpoints
+**Description**: Add a search and filtering system that checks and organize Cases 
+**Acceptance Criteria**:
+- GET /cases accepts optional query parameters: status, client_name, assigned_user_id, date_from, date_to, title, case_reference_number 
+- returns filtered list of matching cases
+**Dependencies**: Phase 2.1 complete
+**Files**: app/api/endpoints/cases.py, app/crud/cases.py
+
+### Tasks 2.7: Add filtering to Deadline and Document endpoints
+**Description**:filtering system that checks and organize Deadline and document data
+**Acceptance Criteria**:
+- GET /Deadline parameters: case_id, due_date, status
+-GET /Document parameters: case_id,filename, uploaded_by, uploaded_at
+**Dependencies**: task 2.2, 2.3
+**Files**: app/api/endpoints/deadlines.py, app/crud/deadlines.py , app/api/endpoints/documents.py, app/crud/documents.py
+
+### Task 2.8: Implement AI insights query endpoint
 **Description**: Build endpoint that fetches relevant data and queries AI API where it will decides the right case or document by using key words,names 
 **Acceptance Criteria**:
 - POST /ai/query accepts natural language question

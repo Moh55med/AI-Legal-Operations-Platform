@@ -64,12 +64,35 @@ class User(Base):
     notifications = relationship("Notification", back_populates="user", cascade="all, delete-orphan")
 
 
+class Client(Base):
+    """Client table for law firm clients"""
+    __tablename__ = "clients"
+
+    id = Column(Integer, primary_key=True, index=True)
+    first_name = Column(String(100), nullable=False)
+    last_name = Column(String(100), nullable=False)
+    email = Column(String(255), unique=True, nullable=False, index=True)
+    phone = Column(String(20), nullable=True)
+    company_name = Column(String(255), nullable=True)
+    address = Column(String(500), nullable=True)
+    city = Column(String(100), nullable=True)
+    state = Column(String(100), nullable=True)
+    zip_code = Column(String(20), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    # Relationships
+    cases = relationship("Case", back_populates="client", cascade="all, delete-orphan")
+
+
 class Case(Base):
     """Case table for tracking legal cases"""
     __tablename__ = "cases"
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(255), nullable=False)
+    case_reference_number = Column(String(50), unique=True, nullable=False, index=True)
+    client_id = Column(Integer, ForeignKey("clients.id", ondelete="CASCADE"), nullable=False, index=True)
     status = Column(Enum(CaseStatusEnum), default=CaseStatusEnum.OPEN, nullable=False)
     description = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
@@ -77,6 +100,7 @@ class Case(Base):
     closed_at = Column(DateTime, nullable=True)
 
     # Relationships
+    client = relationship("Client", back_populates="cases")
     watchers = relationship("Watcher", back_populates="case", cascade="all, delete-orphan")
     documents = relationship("Document", back_populates="case", cascade="all, delete-orphan")
     deadlines = relationship("Deadline", back_populates="case", cascade="all, delete-orphan")

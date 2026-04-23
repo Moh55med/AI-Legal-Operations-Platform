@@ -3,12 +3,14 @@ FastAPI endpoints for case management.
 Provides CRUD operations for legal cases.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
+from datetime import datetime
 from app.db.session import get_db
 from app.crud import cases as cases_crud
 from app.schemas import CaseCreate, CaseUpdate, CaseResponse
+from app.db.models import CaseStatusEnum
 
 router = APIRouter()
 
@@ -20,28 +22,71 @@ def create_case(case: CaseCreate, db: Session = Depends(get_db)):
     
     **Parameters:**
     - **title**: Case title (required)
+    - **case_reference_number**: Case reference number - must be unique (required)
+    - **client_id**: Client ID (required)
     - **description**: Case description (optional)
     
     **Returns:** Created case object with ID
     """
-    db_case = cases_crud.create_case(db, title=case.title, description=case.description)
+    db_case = cases_crud.create_case(
+        db,
+        title=case.title,
+        case_reference_number=case.case_reference_number,
+        client_id=case.client_id,
+        description=case.description,
+    )
     return db_case
 
 
 @router.get("/", response_model=List[CaseResponse])
-def list_cases(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def list_cases(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=100),
+    status: Optional[CaseStatusEnum] = Query(None),
+    title: Optional[str] = Query(None),
+    case_reference_number: Optional[str] = Query(None),
+    client_name: Optional[str] = Query(None),
+    assigned_user_id: Optional[int] = Query(None),
+    date_from: Optional[datetime] = Query(None),
+    date_to: Optional[datetime] = Query(None),
+    db: Session = Depends(get_db),
+):
     """
-    List all cases with pagination.
+    List all cases with advanced filtering and search.
     
     **Parameters:**
     - **skip**: Number of records to skip (default: 0)
     - **limit**: Number of records to return (default: 100, max: 100)
+    - **status**: Filter by case status - 'open', 'closed', 'on_hold' (optional)
+    - **title**: Search in case title (optional)
+    - **case_reference_number**: Search by case reference number (optional)
+    - **client_name**: Filter by client first or last name (optional)
+    - **assigned_user_id**: Filter by assigned user ID (optional)
+    - **date_from**: Filter cases created from this date (ISO format, optional)
+    - **date_to**: Filter cases created until this date (ISO format, optional)
     
-    **Returns:** List of cases
+    **Returns:** List of cases matching the filters
     """
     if limit > 100:
         limit = 100
-    cases = cases_crud.get_all_cases(db, skip=skip, limit=limit)
+    
+    # If any filter is provided, use advanced filtering
+    if any([status, title, case_reference_number, client_name, assigned_user_id, date_from, date_to]):
+        cases = cases_crud.filter_cases(
+            db,
+            status=status,
+            client_name=client_name,
+            assigned_user_id=assigned_user_id,
+            date_from=date_from,
+            date_to=date_to,
+            title=title,
+            case_reference_number=case_reference_number,
+            skip=skip,
+            limit=limit,
+        )
+    else:
+        cases = cases_crud.get_all_cases(db, skip=skip, limit=limit)
+    
     return cases
 
 

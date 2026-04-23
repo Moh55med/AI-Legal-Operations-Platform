@@ -1,11 +1,12 @@
 """FastAPI API v1 router and route aggregation"""
 
 from fastapi import APIRouter
-from app.api.api_v1.endpoints import cases, documents, deadlines, notifications
+from app.api.api_v1.endpoints import cases, documents, deadlines, notifications, clients
 
 api_router = APIRouter()
 
 # Include endpoint routers
+api_router.include_router(clients.router, prefix="/clients", tags=["clients"])
 api_router.include_router(cases.router, prefix="/cases", tags=["cases"])
 api_router.include_router(documents.router, prefix="/documents", tags=["documents"])
 api_router.include_router(deadlines.router, prefix="/deadlines", tags=["deadlines"])

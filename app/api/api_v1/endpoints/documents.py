@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File,
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional
+from datetime import datetime
 import os
 import shutil
 from pathlib import Path
@@ -85,22 +86,46 @@ async def upload_document(
 @router.get("/", response_model=List[DocumentResponse])
 def list_documents(
     case_id: Optional[int] = Query(None),
+    filename: Optional[str] = Query(None),
+    uploaded_by: Optional[int] = Query(None),
+    uploaded_at: Optional[datetime] = Query(None),
+    uploaded_at_from: Optional[datetime] = Query(None),
+    uploaded_at_to: Optional[datetime] = Query(None),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=100),
     db: Session = Depends(get_db),
 ):
     """
-    List documents, optionally filtered by case.
+    List documents with advanced filtering.
     
     **Parameters:**
     - **case_id**: Filter documents by case ID (optional)
+    - **filename**: Search in filename (optional)
+    - **uploaded_by**: Filter by uploader user ID (optional)
+    - **uploaded_at**: Filter documents uploaded on exact date (ISO format, optional)
+    - **uploaded_at_from**: Filter documents uploaded on or after this date (ISO format, optional)
+    - **uploaded_at_to**: Filter documents uploaded on or before this date (ISO format, optional)
     - **skip**: Number of records to skip (default: 0)
     - **limit**: Number of records to return (default: 100)
     
     **Returns:** List of documents
     """
-    if case_id:
-        documents = documents_crud.get_documents_by_case(db, case_id, skip=skip, limit=limit)
+    if limit > 100:
+        limit = 100
+    
+    # If any filter is provided, use advanced filtering
+    if any([case_id, filename, uploaded_by, uploaded_at, uploaded_at_from, uploaded_at_to]):
+        documents = documents_crud.filter_documents(
+            db,
+            case_id=case_id,
+            filename=filename,
+            uploaded_by=uploaded_by,
+            uploaded_at=uploaded_at,
+            uploaded_at_from=uploaded_at_from,
+            uploaded_at_to=uploaded_at_to,
+            skip=skip,
+            limit=limit,
+        )
     else:
         documents = documents_crud.get_all_documents(db, skip=skip, limit=limit)
     

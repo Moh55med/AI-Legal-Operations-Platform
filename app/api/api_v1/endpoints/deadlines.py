@@ -5,11 +5,12 @@ Handles deadline CRUD operations for cases.
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 from app.db.session import get_db
 from app.crud import deadlines as deadlines_crud
 from app.schemas import DeadlineCreate, DeadlineUpdate, DeadlineResponse
+from app.db.models import DeadlineStatusEnum
 
 router = APIRouter()
 
@@ -37,23 +38,44 @@ def create_deadline(deadline: DeadlineCreate, db: Session = Depends(get_db)):
 
 @router.get("/", response_model=List[DeadlineResponse])
 def list_deadlines(
-    case_id: int = Query(None),
+    case_id: Optional[int] = Query(None),
+    status: Optional[DeadlineStatusEnum] = Query(None),
+    due_date: Optional[datetime] = Query(None),
+    due_date_from: Optional[datetime] = Query(None),
+    due_date_to: Optional[datetime] = Query(None),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=100),
     db: Session = Depends(get_db),
 ):
     """
-    List all deadlines, optionally filtered by case.
+    List all deadlines with advanced filtering.
     
     **Parameters:**
     - **case_id**: Filter by case ID (optional)
+    - **status**: Filter by status - 'pending', 'completed', 'missed' (optional)
+    - **due_date**: Filter deadlines on exact date (ISO format, optional)
+    - **due_date_from**: Filter deadlines due on or after this date (ISO format, optional)
+    - **due_date_to**: Filter deadlines due on or before this date (ISO format, optional)
     - **skip**: Number of records to skip (default: 0)
     - **limit**: Number of records to return (default: 100)
     
     **Returns:** List of deadlines
     """
-    if case_id:
-        deadlines = deadlines_crud.get_deadlines_by_case(db, case_id, skip=skip, limit=limit)
+    if limit > 100:
+        limit = 100
+    
+    # If any filter is provided, use advanced filtering
+    if any([case_id, status, due_date, due_date_from, due_date_to]):
+        deadlines = deadlines_crud.filter_deadlines(
+            db,
+            case_id=case_id,
+            status=status,
+            due_date=due_date,
+            due_date_from=due_date_from,
+            due_date_to=due_date_to,
+            skip=skip,
+            limit=limit,
+        )
     else:
         deadlines = deadlines_crud.get_all_deadlines(db, skip=skip, limit=limit)
     

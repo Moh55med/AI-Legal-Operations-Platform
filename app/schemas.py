@@ -60,10 +60,54 @@ class UserResponse(UserBase):
         from_attributes = True
 
 
+# Client Schemas
+class ClientBase(BaseModel):
+    """Base client schema"""
+    first_name: str = Field(..., min_length=1, max_length=100)
+    last_name: str = Field(..., min_length=1, max_length=100)
+    email: EmailStr
+    phone: Optional[str] = Field(None, max_length=20)
+    company_name: Optional[str] = Field(None, max_length=255)
+    address: Optional[str] = Field(None, max_length=500)
+    city: Optional[str] = Field(None, max_length=100)
+    state: Optional[str] = Field(None, max_length=100)
+    zip_code: Optional[str] = Field(None, max_length=20)
+
+
+class ClientCreate(ClientBase):
+    """Schema for creating client"""
+    pass
+
+
+class ClientUpdate(BaseModel):
+    """Schema for updating client"""
+    first_name: Optional[str] = Field(None, max_length=100)
+    last_name: Optional[str] = Field(None, max_length=100)
+    email: Optional[EmailStr] = None
+    phone: Optional[str] = Field(None, max_length=20)
+    company_name: Optional[str] = Field(None, max_length=255)
+    address: Optional[str] = Field(None, max_length=500)
+    city: Optional[str] = Field(None, max_length=100)
+    state: Optional[str] = Field(None, max_length=100)
+    zip_code: Optional[str] = Field(None, max_length=20)
+
+
+class ClientResponse(ClientBase):
+    """Schema for client response"""
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
 # Case Schemas
 class CaseBase(BaseModel):
     """Base case schema"""
     title: str = Field(..., min_length=1, max_length=255)
+    case_reference_number: str = Field(..., min_length=1, max_length=50)
+    client_id: int
     description: Optional[str] = None
 
 
