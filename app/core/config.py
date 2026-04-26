@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     DATABASE_POOL_PRE_PING: bool = True
     DATABASE_MAX_OVERFLOW: int = 10
 
+    # AI/Claude API
+    ANTHROPIC_API_KEY: Optional[str] = None
+    CLAUDE_MODEL: str = "claude-3-5-sonnet-20241022"
+
     class Config:
         env_file = ".env"
         case_sensitive = True
