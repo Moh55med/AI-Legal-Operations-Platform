@@ -175,6 +175,59 @@
 **Effort**: 2 days
 **Files**: app/api/endpoints/ai.py, app/services/ai_query.py
 
+### Task 2.9: Implement structured AI assistant endpoint
+
+**Description**:Build endpoint that retrieve depend on the question where it will send to the clauda api and respond 
+
+**Supported Tasks**:
+- Case Duration Query
+  - Input:"how long has this case been going?"
+  - Data source:the ai will go look in the database to the case table and will look for created_at columns
+  - Output:"Case: Ahmed Property Dispute
+    Reference: CASE-2024-0012
+    Created: 02/11/2022
+    Duration: 2 years, 5 months
+    Status: Active"
+- Client Case Count Query
+  - Input:"how many cases have we got from the client?"
+  - Data source:the ai will go to the client table and will look for first_name, last_name or perhaps even id if given
+  - Output:"(this client) has 3 cases"
+    (cases 1) carted at: 05/04/2022
+    status: active
+    (cases2) .... and so on
+- Deadline Status Query
+  - Input:"has this case reached the deadline for the court hearing"
+  - Data source:the ai will look for the deadline table 
+  - Output:(case deadline is :02/06/2026)
+    Case: Ahmed Property Dispute
+    Reference: CASE-2024-0012 
+    Deadline: 02/06/2026
+    Days Remaining: 92
+    Status: Pending
+
+
+**Routing Logic**:
+- "when a user asks 'how long has this case been going' the AI looks for keywords — 'been going' maps to created_at column"
+- "how many cases have we got from the client?"'how many case' tell the ai to count 
+- "has this case reached the deadline for the court hearing"'case reached the deadline for the court hearing' tells the ai to look for deadline of the court hearing
+- "If no keywords match, return a clarification request asking the user to rephrase"
+
+**Acceptance Criteria**:
+- look for keywords
+- Fetches relevant case/document/deadline data
+- Sends to Claude API with context
+- Returns AI-generated answer with citations
+- /ask endpoint routes correctly to all three defined tasks
+- Ambiguous or unrecognized input returns a clarification prompt instead of an error
+
+**Reflection Note**:
+- What works:Returns answer with the data that has been question 
+- Limitation:the user will need to specify if the user did not specify who or what he is asking for it will not be able to retrieve
+
+**Dependencies**:task 2.8
+**Files**:app/api/endpoints/ai_assistant.py app/services/ai_assistant.py
+
+
 ## Phase 3: Security & Compliance
 
 ### Task 3.1: Implement user registration endpoint
