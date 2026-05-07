@@ -228,9 +228,92 @@
 **Files**:app/api/endpoints/ai_assistant.py app/services/ai_assistant.py
 
 
-## Phase 3: Security & Compliance
+## Phase 3: Frontend
 
-### Task 3.1: Implement user registration endpoint
+## Task 3.1: Set up React project structure and routing
+- Description: Initialize React project with page routing and environment configuration
+- Acceptance Criteria:
+
+- React app runs locally
+- Routes exist for: login, dashboard, cases, case detail, AI assistant, deadlines
+- REACT_APP_API_URL configured in .env for backend connection
+- Dependencies: Phase 1-4 complete
+- Effort: 1 day
+- Files: src/App.js, src/pages/, .env
+
+## Task 3.2: Build Login page
+- Description: Build login form connected to POST /auth/login, store JWT token on success
+- Acceptance Criteria:
+
+- Form accepts username and password
+- JWT token stored on success
+- Redirects to dashboard after login
+- Error message shown on invalid credentials
+- Dependencies: Task 3.1
+- Effort: 0.5 days
+- Files: src/pages/Login.js, src/services/auth.js
+
+## Task 3.3: Build Dashboard page
+- Description: Display overview of active cases, upcoming deadlines, and alerts
+- Acceptance Criteria:
+
+- Shows total active cases
+- Shows upcoming deadlines
+- Shows recent alerts
+- Calls Case and Deadline endpoints
+- Dependencies: Task 3.1, Task 2.1, Task 2.3
+- Effort: 1 day
+- Files: src/pages/Dashboard.js, src/services/api.js
+
+## Task 3.4: Build Case Management page
+- Description: Display case list with search, filter, and create case functionality
+- Acceptance Criteria:
+
+- Lists all accessible cases
+- Search and filter by status, client, reference number
+- Create new case form works
+- Navigates to Case Detail on selection
+- Dependencies: Task 3.1, Task 2.1, Task 2.6
+- Effort: 1.5 days
+- Files: src/pages/Cases.js, src/services/cases.js
+
+## Task 3.5: Build Case Detail page
+- Description: Display single case with documents, deadlines, and update/delete actions
+- Acceptance Criteria:
+
+- Shows case information
+- Lists related documents with download
+- Lists related deadlines with status
+- Update and delete actions work
+- Dependencies: Task 3.4, Task 2.2, Task 2.3
+- Effort: 1.5 days
+- Files: src/pages/CaseDetail.js
+
+## Task 3.6: Build AI Assistant page
+- Description: Build interface for natural language queries connected to /ask endpoint
+- Acceptance Criteria:
+
+- Input field accepts natural language question
+- Displays structured response
+- Shows warning messages when data is insufficient
+- Dependencies: Task 3.1, Task 2.9
+- Effort: 1 day
+- Files: src/pages/AIAssistant.js, src/services/ai.js
+
+## Task 3.7: Build Deadlines page
+- Description: Display all deadlines with filter by status and case
+- Acceptance Criteria:
+
+- Lists all accessible deadlines
+- Filter by status and case works
+- Create, update, delete deadline actions work
+- Dependencies: Task 3.1, Task 2.3, Task 2.7
+- Effort: 1 day
+- Files: src/pages/Deadlines.js
+
+## Phase 4: Security & Compliance
+
+### Task 4.1: Implement user registration endpoint
 **Description**: Build endpoint for new user registration with automatic basic role assignment
 **Acceptance Criteria**:
 - POST /auth/register creates user with first_name, last_name, email, phone
@@ -241,27 +324,27 @@
 **Effort**: 1 day
 **Files**: app/api/endpoints/auth.py, app/services/auth.py
 
-### Task 3.2: Implement user login endpoint
+### Task 4.2: Implement user login endpoint
 **Description**: Build endpoint for user authentication
 **Acceptance Criteria**:
 - POST /auth/login validates username/password
 - Returns JWT token on success
 - Proper error messages for invalid credentials
-**Dependencies**: Task 3.1
+**Dependencies**: Task 4.1
 **Effort**: 1 day
 **Files**: app/api/endpoints/auth.py, app/services/auth.py
 
-### Task 3.3: Implement role-based access control
+### Task 4.3: Implement role-based access control
 **Description**: Add middleware and decorators for role-based permissions
 **Acceptance Criteria**:
 - Only 'supervisor' and 'basic' roles can access core features
 - Supervisor can change user roles
 - Basic users have standard access
-**Dependencies**: Task 3.2
+**Dependencies**: Task 4.2
 **Effort**: 1.5 days
 **Files**: app/api/middleware/rbac.py, app/services/permissions.py
 
-### Task 3.4: Implement audit logging
+### Task 4.4: Implement audit logging
 **Description**: Add automatic logging for all user actions
 **Acceptance Criteria**:
 - All CRUD operations logged to AuditLog table
@@ -271,9 +354,9 @@
 **Effort**: 1 day
 **Files**: app/services/audit.py, app/api/endpoints/audit.py
 
-## Phase 4: Testing & Deployment
+## Phase 5: Testing & Deployment
 
-### Task 4.1: Test Phase 2 endpoints functionality
+### Task 5.1: Test Phase 2 endpoints functionality
 **Description**: Verify all CRUD endpoints work correctly
 **Acceptance Criteria**:
 - Case CRUD operations successful
@@ -284,7 +367,7 @@
 **Effort**: 2 days
 **Files**: tests/test_api.py
 
-### Task 4.2: Test role restrictions enforcement
+### Task 5.2: Test role restrictions enforcement
 **Description**: Verify security controls work properly
 **Acceptance Criteria**:
 - Unauthorized users blocked from core features
@@ -294,7 +377,7 @@
 **Effort**: 1.5 days
 **Files**: tests/test_security.py
 
-### Task 4.3: Test notification system
+### Task 5.3: Test notification system
 **Description**: Verify deadline alerts appear on login
 **Acceptance Criteria**:
 - Background job creates notifications
@@ -304,7 +387,7 @@
 **Effort**: 1 day
 **Files**: tests/test_notifications.py
 
-### Task 4.4: Prepare for deployment
+### Task 5.4: Prepare for deployment
 **Description**: Set up production configuration and deployment scripts
 **Acceptance Criteria**:
 - Docker configuration complete
