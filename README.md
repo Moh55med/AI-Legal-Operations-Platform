@@ -13,8 +13,6 @@ A platform for legal firms to manage cases, track deadlines, organize documents,
 
 - Python 3.11+
 - FastAPI
-- `CodeRabbit` CLI (code review/quality checks)
-- `spec-kit` (spec → plan → tasks → implementation)
 
 ## More docs
 
